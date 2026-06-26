@@ -43,6 +43,7 @@
     <div class="kpi live"><div class="n" id="k-pac">…</div><div class="l">Pacientes en hospital (vivo)</div></div>
     <div class="kpi"><div class="n" id="k-coin">—</div><div class="l">Posibles coincidencias</div></div>
   </div>
+  <p class="muted" id="upd" style="margin:-6px 0 10px"></p>
 
   <div class="card">
     <h2><span class="dot"></span> ¿Está esta persona en un hospital?</h2>
@@ -60,6 +61,17 @@ let PAC = [];
 function norm(s){return (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase();}
 function setN(id,v){document.getElementById(id).textContent=(v??0).toLocaleString("es-ES");}
 setN("k-desap",D.total);setN("k-sc",D.sinContacto);setN("k-loc",D.localizados);setN("k-coin",D.coincidencias);
+
+// Cifra de pacientes AUTO: stats.json lo refresca un GitHub Action cada 20 min (Supabase).
+// (Las cifras de desaparecidos son snapshot: su API exige reCAPTCHA y no se debe saltar.)
+async function cargarStats(){
+  try{
+    const s=await (await fetch("stats.json?t="+Date.now(),{cache:"no-store"})).json();
+    if(s.pacientes){setN("k-pac",s.pacientes);}
+    if(s.updated){document.getElementById("upd").textContent="Pacientes actualizados (auto): "+s.updated.replace("T"," ").slice(0,16)+" UTC";}
+  }catch(e){}
+}
+cargarStats(); setInterval(cargarStats, 300000);
 
 async function cargar(){
   try{
