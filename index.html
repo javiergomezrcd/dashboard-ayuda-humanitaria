@@ -68,7 +68,12 @@ async function cargarStats(){
   try{
     const s=await (await fetch("stats.json?t="+Date.now(),{cache:"no-store"})).json();
     if(s.pacientes){setN("k-pac",s.pacientes);}
-    if(s.updated){document.getElementById("upd").textContent="Pacientes actualizados (auto): "+s.updated.replace("T"," ").slice(0,16)+" UTC";}
+    if(s.updated){
+      let t="Pacientes (auto): "+s.updated.replace("T"," ").slice(0,16)+" UTC";
+      if(s.hospitales){t+=" · "+s.hospitales+" hospitales";}
+      if(s.fuentePacientes){t+=" · "+s.fuentePacientes;}
+      document.getElementById("upd").textContent=t;
+    }
   }catch(e){}
 }
 cargarStats(); setInterval(cargarStats, 300000);
