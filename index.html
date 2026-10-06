@@ -53,12 +53,14 @@
     <div class="aviso">Si la encuentras, contacta con ese hospital o las autoridades para confirmar. Refleja el registro oficial de pacientes.</div>
   </div>
 </div>
-<footer>Datos anónimos y agregados. Para verificar coincidencias, contacte con las autoridades competentes. No comparta información personal sin consentimiento.</footer>
+<footer>Cifras agregadas del registro; el buscador muestra datos personales de pacientes (nombre, hospital).
+ Para verificar coincidencias, contacte con las autoridades competentes. No comparta información personal sin consentimiento.</footer>
 
 <script>
 const D = {"total": 48620, "sinContacto": 43332, "localizados": 5288, "coincidencias": 3300, "supaUrl": "https://ghswopasaynslycpaldj.supabase.co/rest/v1", "supaKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoc3dvcGFzYXluc2x5Y3BhbGRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MDU0MDcsImV4cCI6MjA5Nzk4MTQwN30.MifuBb6C54KQdhuv_4gMoNAGJl997ycU299OcFeoyzU"};
 let PAC = [];
 function norm(s){return (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase();}
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function setN(id,v){document.getElementById(id).textContent=(v??0).toLocaleString("es-ES");}
 setN("k-desap",D.total);setN("k-sc",D.sinContacto);setN("k-loc",D.localizados);setN("k-coin",D.coincidencias);
 
@@ -94,7 +96,7 @@ function buscar(){
   const h=PAC.filter(p=>norm((p.apellido||"")+" "+(p.nombre||"")).includes(q)).slice(0,200);
   if(!h.length){res.innerHTML=`<p class="muted" style="padding:12px">Sin resultados. Puede no estar en ningún hospital del registro.</p>`;return;}
   res.innerHTML=`<table><thead><tr><th>Nombre completo</th><th>Hospital</th><th>Fecha ingreso</th><th>ID</th></tr></thead><tbody>`+
-    h.map(p=>`<tr><td><b>${(p.apellido||"")} ${(p.nombre||"")}</b></td><td>${p.hospital||""}</td><td>${(p.created_at||"").slice(0,10)}</td><td>${p.id||""}</td></tr>`).join("")+`</tbody></table>`;
+    h.map(p=>`<tr><td><b>${esc(p.apellido)} ${esc(p.nombre)}</b></td><td>${esc(p.hospital||"")}</td><td>${esc((p.created_at||"").slice(0,10))}</td><td>${esc(p.id||"")}</td></tr>`).join("")+`</tbody></table>`;
 }
 document.getElementById("q").addEventListener("input",buscar);
 cargar();setInterval(cargar,60000);
